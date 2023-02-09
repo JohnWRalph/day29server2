@@ -3,7 +3,7 @@ DaisyUI, Tailwind, and the start of our boring but necessary Todo App that will 
 
 HOMEWORK:
 - a Svelte app with an Express backend, jsut like the previous homework (Videogames app), but for a TODO list using DaisyUI/Tailwind.
-How to set up tailwind/daisy with svelte? Here:
+
 
 You should have:
 - A good looking form that POSTS data to the backend, saved in a file for now.
