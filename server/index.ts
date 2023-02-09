@@ -12,10 +12,10 @@ app.use(cors());
 let errorMessage;
 
 // get list of existing users
-app.get("/user:username", function (req, res) {
-    const userList = fs.readFileSync("./users.json")
-    res.send(userList)
-})
+// app.get("/user/:username", function (req, res) {
+//     const userList = fs.readFileSync("./users.json")
+//     res.send(userList)
+// })
 
 // fetch user input from client, validate input, then reject/accept input 
 app.post("/user/", function (req, res) {
