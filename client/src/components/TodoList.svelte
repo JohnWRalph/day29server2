@@ -2,14 +2,14 @@
     import { activeUser, activeUserID } from "../store/activeUser";
     import axios from "axios";
     import errorMessage from "../store/errorMessage";
-    // import todoList from "../store/todo";
+  
 
     let todoList = [];
-    let assigned = "";
+    let assigned: Date;
     let task = "";
-    let completeBy = "";
-   
-   // once logged in, get existing User's todo list
+    let completeBy: Date;
+
+    // once logged in, get existing User's todo list
     async function getTodoList(userid) {
         try {
             const response = await axios.get(
@@ -17,7 +17,9 @@
             );
             // console.log(response.data)
             todoList = response.data;
+
             console.log("heyy", todoList);
+
             return response.data;
         } catch (error) {
             console.error(error);
@@ -26,44 +28,47 @@
 
     // reciever new task input from user, send to server for validation
     async function submitNewTask(userid) {
+        console.log("activeuserid:", userid);
         const result = await axios.post(
-            `http://localhost:3004/todo/${userid}`, {
+            `http://localhost:3004/todo/${userid}`,
+            {
                 userid: userid,
                 assigned: assigned,
                 task: task,
                 completeBy: completeBy,
-            });
-
+            }
+        );
+    
         errorMessage.set(result.data.error);
-        console.log(errorMessage)
-        getTodoList(userid)
+        console.log(errorMessage);
+        console.log("result", result.data);
+        getTodoList(userid);
     }
 
     // remove task from local and global list
     async function removeTask(event) {
-        console.log(event.currentTarget.id)
-        const globalTaskID = (todoList[event.currentTarget.id].taskid)
-        // todoList= todoList.splice(event.currentTarget.id);
+      
+        const globalTaskID = event.currentTarget.id;
+        console.log(globalTaskID);
+      
         const result = await axios.post(
-            `http://localhost:3004/removetodo/${globalTaskID}`, {
-                userid: userid,
-                assigned: assigned,
-                task: task,
-                completeBy: completeBy,
-            });
+            `http://localhost:3004/removetodo/${globalTaskID}/${userid}`
+        );
 
-        errorMessage.set(result.data.error);
+        console.log("resultremove", result.data);
         getTodoList(userid)
+      
     }
     const userid = $activeUserID;
-    console.log(userid)
+    console.log(userid);
     getTodoList(userid);
 </script>
 
-
-<button on:click={async () => await submitNewTask(userid)} id="submitButton" class="btn btn-primary"
-    >Submit</button
-><br>
+<button
+    on:click={async () => await submitNewTask($activeUserID)}
+    id="submitButton"
+    class="btn btn-primary">Submit</button
+><br />
 
 <div id="taskTable" class="overflow-x-auto w-full">
     <table class="table w-full">
@@ -91,7 +96,6 @@
                             <input
                                 bind:value={assigned}
                                 type="date"
-                                
                                 class="input input-bordered w-full max-w-xs"
                             />
                         </div>
@@ -125,16 +129,30 @@
             <!-- row 2 -->
             <!-- row 1 -->
 
-            {#each todoList as todo,i}
-            <div>
-                
-            </div>
+            {#each todoList as todo, i}
+                <div />
                 <tr id="individualTasks">
                     <th>
                         <label>
-                            <button id="{i.toString()}" on:click={removeTask} class="btn btn-square btn-outline">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                              </button>
+                            <button
+                                id={i.toString()}
+                                on:click={removeTask}
+                                class="btn btn-square btn-outline"
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    class="h-6 w-6"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                    ><path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12"
+                                    /></svg
+                                >
+                            </button>
                         </label>
                     </th>
                     <td>
@@ -146,7 +164,7 @@
                         <div id="tasks">
                             {todo.task}
                         </div>
-                        
+
                         <br />
                     </td>
                     <td>
@@ -158,7 +176,6 @@
                         <!-- <button class="btn btn-ghost btn-xs">details</button> -->
                     </th>
                 </tr>
-                
             {/each}
         </tbody>
         <!-- foot -->
@@ -172,44 +189,42 @@
             </tr>
         </tfoot>
     </table>
-    <br>
-   
+    <br />
 </div>
 
 <style global lang="postcss">
     @tailwind base;
     @tailwind components;
     @tailwind utilities;
-.table{
-    border:1px solid rgb(92, 216, 92);
-   /* background-color: aliceblue; */
-}
-#taskTable{
-    overflow-x: hidden;
-    position: absolute;
-    top:20%;
-    left:10%;
-    width:80%;
-    border:1px solid rgb(92, 216, 92);
-  /* background-color: green; */
-border-radius: 20px;
-}
-#taskHeader{
-    border-bottom: 1px solid rgb(92, 216, 92);
-    /* background-color: rgb(39, 35, 1); */
-}
-#taskInput{
-    border-bottom: 1px solid rgb(92, 216, 92);
-    /* background-color: rgb(39, 35, 1); */
-
-}
-#individualTasks{
-    border-top: 1px solid rgb(92, 216, 92);
-    border-bottom: 1px solid rgb(92, 216, 92);
-    /* background-color: brown; */
-}
+    .table {
+        border: 1px solid rgb(92, 216, 92);
+        /* background-color: aliceblue; */
+    }
+    #taskTable {
+        overflow-x: hidden;
+        position: absolute;
+        top: 20%;
+        left: 10%;
+        width: 80%;
+        border: 1px solid rgb(92, 216, 92);
+        /* background-color: green; */
+        border-radius: 20px;
+    }
+    #taskHeader {
+        border-bottom: 1px solid rgb(92, 216, 92);
+        /* background-color: rgb(39, 35, 1); */
+    }
+    #taskInput {
+        border-bottom: 1px solid rgb(92, 216, 92);
+        /* background-color: rgb(39, 35, 1); */
+    }
+    #individualTasks {
+        border-top: 1px solid rgb(92, 216, 92);
+        border-bottom: 1px solid rgb(92, 216, 92);
+        /* background-color: brown; */
+    }
     #tasks {
-        min-width:500px;
+        min-width: 500px;
         max-width: 600px;
         /* height:100px; */
         /* border: 1px solid white; */
@@ -222,7 +237,7 @@ border-radius: 20px;
 
     #submitButton {
         position: absolute;
-        top:11%;
-        left:45%;
+        top: 11%;
+        left: 45%;
     }
 </style>
