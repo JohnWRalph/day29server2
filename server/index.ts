@@ -1,21 +1,46 @@
 import express from "express";
 import fs from "fs"
+import { initializeApp } from "firebase/app";
+import { collection, getDocs, getFirestore, addDoc, ref, onValue, getDoc, query, where, updateDoc } from "firebase/firestore";
 import ToDo from "./domain/todo";
 import User from "./domain/user";
 import cors from "cors"
 import validateUserInput from "./validateUserInput";
 import validateTaskInput from "./validateTaskInput";
 
+// Import the functions you need from the SDKs you need
+
+import { doc, setDoc } from "firebase/firestore";
+// import { collection, addDoc } from "firebase/firestore";
+import dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
+dotenv.config()
+
 const app = express();
 app.use(express.json())
 app.use(cors());
-let errorMessage;
 
-// get list of existing users
-// app.get("/user/:username", function (req, res) {
-//     const userList = fs.readFileSync("./users.json")
-//     res.send(userList)
-// })
+let errorMessage;
+const apiKey = process.env.FIREBASECONFIG_APIKEY
+
+const authDomain = process.env.FIREBASECONFIG_AUTHDOMAIN
+const projectId = process.env.FIREBASECONFIG_PROJECTID
+const storageBucket = process.env.FIREBASECONFIG_STORAGEBUCKET
+const messageSenderId = process.env.FIREBASECONFIG_MESSAGINGSENDERID
+const appId = process.env.FIREBASECONFIG_APPID
+const measurementId = process.env.FIREBASECONFIG_MEASUREMENTID
+const firebaseConfig = {
+    apiKey,
+    authDomain,
+    projectId,
+    storageBucket,
+    messageSenderId,
+    appId,
+    measurementId
+}
+
+//   // Initialize Firebase
+const firebaseApp = initializeApp(firebaseConfig as any);
+
 
 // fetch user input from client, validate input, then reject/accept input 
 app.post("/user/", function (req, res) {
@@ -36,8 +61,6 @@ app.post("/user/", function (req, res) {
         })
         return;
     }
-
-
 
     //push newly created user to existing users and set active user on server side
     if (isNewUser === true) {
@@ -62,31 +85,27 @@ app.post("/user/", function (req, res) {
 
 })
 
-
 // Server-side code
-app.get("/todo/:userid", function (req, res) {
-//    console.log("fdf")
-    const userid = req.params.userid;
-    // console.log(userid)
-    const todoList = JSON.parse(fs.readFileSync(`./todo.json`) as any as string);
-    // console.log(todoList)
-    let result = todoList.filter(function(item) {
-        return item.userid === Number(userid);
-    })
-    // console.log(result)
-    res.send(result);
+app.get("/", async function (req, res) {
+
+    // const userid = req.params.userid;
+    const database = getFirestore(firebaseApp);
+    const docRef = await getDocs(collection(database, "users", "9", "task"))
+    const todoList = docRef.docs.map(doc => doc.data())
+    console.log("DocRef:", todoList)
+
+    res.send(docRef.docs.map(doc => doc.data()));
 });
 
-
-// Recieve tasks from client, validates it, then add to global list
-app.post("/todo/:userid", function (req, res) {
+// Recieves userid, returns todos for user
+app.get("/todo/:userid", async function (req, res) {
     const userid = req.params.userid;
     var assigned = req.body.assigned;
     const task = req.body.task;
     var completeBy = req.body.completeBy;
-    const todoList = JSON.parse(fs.readFileSync('./todo.json') as any as string);
+
     try {
-        validateTaskInput(assigned,task,completeBy,userid)
+        // validateTaskInput(assigned,task,completeBy,userid)
     } catch (e) {
         errorMessage = e.message
         console.log("message:", errorMessage)
@@ -95,39 +114,110 @@ app.post("/todo/:userid", function (req, res) {
         })
         return;
     }
-    if (assigned ==="") {
+    if (assigned === "") {
         assigned = new Date().toLocaleDateString()
+
     } else {
 
     }
-    if (completeBy ==="") {
+    if (completeBy === "") {
         completeBy = new Date().toLocaleDateString()
     }
+
+    const database = getFirestore(firebaseApp);
+    const docRef = await getDoc(doc(database, "todo", userid))
+    var todoList = docRef.data()
+    console.log("old:", todoList)
+    // oldtodoList.push(newToDo)
+    if (todoList === undefined) {
+        todoList = []
+    } else {
+        todoList = todoList.todoList
+    }
+
+    res.send(todoList)
+})
+// Recieve tasks from client, validates it, then add to global list
+app.post("/todo/:userid", async function (req, res) {
+    const userid = req.params.userid;
+    var assigned = req.body.assigned;
+    const task = req.body.task;
+    var completeBy = req.body.completeBy;
+
+    try {
+        
+    } catch (e) {
+        errorMessage = e.message
+        console.log("message:", errorMessage)
+        res.send({
+            error: e.message
+        })
+        return;
+    }
+    if (assigned === "") {
+        assigned = new Date().toLocaleDateString()
+
+    } else {
+
+    }
+    if (completeBy === "") {
+        completeBy = new Date().toLocaleDateString()
+    }
+
     const newToDo: ToDo = {
         userid: Number(userid),
-        taskid: todoList.length,
         assigned: assigned,
         task: task,
         completeBy: completeBy,
         done: false,
     }
-   
-    todoList.push(newToDo);
-    fs.writeFileSync("./todo.json", JSON.stringify(todoList))
 
-    res.send(todoList)
+    // Initialize Cloud Firestore and get a reference to the service
+    const database = getFirestore(firebaseApp);
+    const docRef = await getDoc(doc(database, "todo", userid))
+    var todoList = docRef.data()
+    console.log("old:", todoList)
+   
+    if (todoList === undefined) {
+        todoList = []
+    } else {
+        todoList = todoList.todoList
+    }
+
+    todoList.push(newToDo)
+
+    await setDoc(doc(database, "todo", userid), {
+
+        todoList
+    })
+
+    res.send(newToDo)
 })
 
-
 // recieve  task to be removed from client, removes from global todo list, and reorders global index
-app.post("/removetodo/:globalTaskID", function (req, res) {
+app.post("/removetodo/:globalTaskID/:userid", async function (req, res) {
     const globalTaskID = req.params.globalTaskID;
-    const todoList = JSON.parse(fs.readFileSync('./todo.json') as any as string);
-    todoList.splice(globalTaskID,1)
-    for (let i =0;i < todoList.length;i++) {
-        todoList[i].taskid = i;
+    const userid = req.params.userid
+    const database = getFirestore(firebaseApp);
+    console.log(globalTaskID)
+
+    const docRef = await getDoc(doc(database, "todo", userid))
+    var todoList = docRef.data()
+    console.log("old:", todoList)
+
+    if (todoList === undefined) {
+        todoList = []
+    } else {
+        todoList = todoList.todoList
     }
-    fs.writeFileSync("./todo.json", JSON.stringify(todoList))
-    res.send(todoList)
+    console.log("remove:",todoList[globalTaskID])
+    
+    todoList.splice(globalTaskID, 1)
+    await setDoc(doc(database, "todo", userid), {
+
+        todoList
+    })
+
+res.send(todoList)
 })
 app.listen(3004)
