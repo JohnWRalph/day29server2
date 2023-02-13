@@ -1,7 +1,7 @@
 import express from "express";
 import fs from "fs"
 import { initializeApp } from "firebase/app";
-import { collection, getDocs, getFirestore, addDoc, ref, onValue, getDoc, query, where, updateDoc } from "firebase/firestore";
+import { collection, getDocs, getFirestore, addDoc, getDoc, query, where, updateDoc } from "firebase/firestore";
 import ToDo from "../domain/todo";
 import User from "../domain/user";
 import cors from "cors"
