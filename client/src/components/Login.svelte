@@ -36,7 +36,7 @@
             isNewUser: false,
         });
         errorMessage.set(result.data.error);
-        console.log("gay",result)
+
         username = result.data.username;
         activeUser.set(result.data.username);
         activeUserID.set(result.data.userid);
