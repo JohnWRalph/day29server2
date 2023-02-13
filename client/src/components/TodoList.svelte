@@ -18,7 +18,7 @@
             // console.log(response.data)
             todoList = response.data;
 
-            console.log("heyy", todoList);
+
 
             return response.data;
         } catch (error) {
@@ -28,7 +28,7 @@
 
     // reciever new task input from user, send to server for validation
     async function submitNewTask(userid) {
-        console.log("activeuserid:", userid);
+       
         const result = await axios.post(
             `https://day26-lmnctbg14-yahoongmi.vercel.app/todo/${userid}`,
             {
@@ -47,7 +47,7 @@
     async function removeTask(event) {
       
         const globalTaskID = event.currentTarget.id;
-        console.log(globalTaskID);
+       
       
         const result = await axios.post(
             `https://day26-lmnctbg14-yahoongmi.vercel.app/removetodo/${globalTaskID}/${userid}`
@@ -58,7 +58,7 @@
       
     }
     const userid = $activeUserID;
-    console.log(userid);
+    
     getTodoList(userid);
 </script>
 

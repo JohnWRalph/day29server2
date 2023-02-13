@@ -48,7 +48,7 @@ app.post("/user/", async function (req, res) {
     const database = getFirestore(firebaseApp);
     const docRef = await getDocs(collection(database, "users"))
     var userList = docRef.docs.map(doc => doc.data())
-    console.log("users:", userList.length)
+
     const username = req.body.username;
     const password = req.body.password;
     const isNewUser = req.body.isNewUser;
@@ -81,7 +81,7 @@ app.post("/user/", async function (req, res) {
         } else {
             userList = userList
         }
-        console.log(user)
+
         // userList.push(user);
 
         await setDoc(doc(database, "users", userid.toString()), {
@@ -92,7 +92,7 @@ app.post("/user/", async function (req, res) {
 
     } else {
         const index = userList.findIndex(element => element.user.username === username)
-        console.log(index)
+    
         const user = {
             userid: index,
             username: username,
@@ -109,7 +109,7 @@ app.get("/", async function (req, res) {
     const database = getFirestore(firebaseApp);
     const docRef = await getDocs(collection(database, "users", "9", "task"))
     const todoList = docRef.docs.map(doc => doc.data())
-    console.log("DocRef:", todoList)
+
 
     res.send(docRef.docs.map(doc => doc.data()));
 });
@@ -124,20 +124,6 @@ app.get("/todo/:userid", async function (req, res) {
     const docRef = await getDoc(doc(database, "todo", userid))
     var todoList = docRef.data()
     console.log("old:", todoList)
-    // try {
-    //     // validateTaskInput(assigned,task,completeBy,userid,todoList)
-    // } catch (e) {
-    //     errorMessage = e.message
-    //     console.log("message:", errorMessage)
-    //     res.send({
-    //         error: e.message
-    //     })
-    //     return;
-    // }
-   
-
- 
-    // oldtodoList.push(newToDo)
     if (todoList === undefined) {
         todoList = []
     } else {
@@ -157,7 +143,7 @@ app.post("/todo/:userid", async function (req, res) {
         validateTaskInput(assigned,task,completeBy,userid,todoList)
     } catch (e) {
         errorMessage = e.message
-        console.log("message:", errorMessage)
+      
         res.send({
             error: e.message
         })
@@ -177,7 +163,7 @@ app.post("/todo/:userid", async function (req, res) {
     const database = getFirestore(firebaseApp);
     const docRef = await getDoc(doc(database, "todo", userid))
     var todoList = docRef.data()
-    console.log("old:", todoList)
+ 
 
     if (todoList === undefined) {
         todoList = []
@@ -200,11 +186,11 @@ app.post("/removetodo/:globalTaskID/:userid", async function (req, res) {
     const globalTaskID = req.params.globalTaskID;
     const userid = req.params.userid
     const database = getFirestore(firebaseApp);
-    console.log(globalTaskID)
+
 
     const docRef = await getDoc(doc(database, "todo", userid))
     var todoList = docRef.data()
-    console.log("old:", todoList)
+   
 
     if (todoList === undefined) {
         todoList = []
