@@ -13,7 +13,7 @@
     async function getTodoList(userid) {
         try {
             const response = await axios.get(
-                `https://day26-lmnctbg14-yahoongmi.vercel.app//${userid}`
+                `https://day26-lmnctbg14-yahoongmi.vercel.app/${userid}`
             );
             // console.log(response.data)
             todoList = response.data;
@@ -30,7 +30,7 @@
     async function submitNewTask(userid) {
         console.log("activeuserid:", userid);
         const result = await axios.post(
-            `https://day26-lmnctbg14-yahoongmi.vercel.app//${userid}`,
+            `https://day26-lmnctbg14-yahoongmi.vercel.app/${userid}`,
             {
                 userid: userid,
                 assigned: assigned,
