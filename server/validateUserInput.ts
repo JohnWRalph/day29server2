@@ -10,7 +10,7 @@ function validateUserInput(userList: User[], username: string, password: string,
             throw Error(`Name is too long, maximum length is 15, got ${username.length}`)
         } if (username.length < 5) {
             throw Error(`Name is too short, minimum length is 5, got ${username.length}`)
-        } if (userList.find(u => u.username === username)) {
+        } if (userList.find(u => (u as any).user.username === username)) {
             throw Error(`Username already exists. Select a different username`)
         } if (password.length > 15) {
             throw Error(`Password is too long, maximum length is 15, got ${password.length}`)
@@ -18,10 +18,11 @@ function validateUserInput(userList: User[], username: string, password: string,
             throw Error(`Password is too short, minimum length is 5, got ${password.length}`)
         }
     } else {
-        const index = userList.findIndex(element => element.username === username )
+        const index = userList.findIndex(element => (element as any).user.username === username )
+        console.log(index)
         if (index === -1) {
             throw Error("Username/ Password combination incorrect")
-        } if (userList[index].password !== password ) {
+        } if ((userList[index] as any).user.password !== password ) {
             throw Error("Username/ Password combination incorrect")
         } else {
         }

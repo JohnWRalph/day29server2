@@ -43,16 +43,19 @@ const firebaseApp = initializeApp(firebaseConfig as any);
 
 
 // fetch user input from client, validate input, then reject/accept input 
-app.post("/user/", function (req, res) {
+app.post("/user/", async function (req, res) {
     // fetch
-    const userList = JSON.parse(fs.readFileSync("./users.json") as any as string);
+    const database = getFirestore(firebaseApp);
+    const docRef = await getDocs(collection(database, "users"))
+    var userList = docRef.docs.map(doc => doc.data())
+    console.log("users:", userList.length)
     const username = req.body.username;
     const password = req.body.password;
     const isNewUser = req.body.isNewUser;
 
     // validate
     try {
-        validateUserInput(userList, username, password, isNewUser)
+        validateUserInput(userList as any, username, password, isNewUser)
     } catch (e) {
         errorMessage = e.message
         // console.log("message:", errorMessage)
@@ -65,19 +68,33 @@ app.post("/user/", function (req, res) {
     //push newly created user to existing users and set active user on server side
     if (isNewUser === true) {
         //construct user
+
+        var userid = userList.length;
         const user: User = {
-            id: userList.length,
+            userid: Number(userid),
             username: username,
             password: password
         }
-        userList.push(user);
-        fs.writeFileSync("./users.json", JSON.stringify(userList));
-        fs.writeFileSync("./activeUser.json", JSON.stringify(user.username));
+        // let userList;
+        if (userList === undefined) {
+            userList = []
+        } else {
+            userList = userList
+        }
+        console.log(user)
+        // userList.push(user);
+
+        await setDoc(doc(database, "users", userid.toString()), {
+            user
+        });
         res.send(user)
+
+
     } else {
-        const index = userList.findIndex(element => element.username === username)
+        const index = userList.findIndex(element => element.user.username === username)
+        console.log(index)
         const user = {
-            id: index,
+            userid: index,
             username: username,
         }
         res.send(user)
@@ -103,31 +120,23 @@ app.get("/todo/:userid", async function (req, res) {
     var assigned = req.body.assigned;
     const task = req.body.task;
     var completeBy = req.body.completeBy;
-
-    try {
-        // validateTaskInput(assigned,task,completeBy,userid)
-    } catch (e) {
-        errorMessage = e.message
-        console.log("message:", errorMessage)
-        res.send({
-            error: e.message
-        })
-        return;
-    }
-    if (assigned === "") {
-        assigned = new Date().toLocaleDateString()
-
-    } else {
-
-    }
-    if (completeBy === "") {
-        completeBy = new Date().toLocaleDateString()
-    }
-
     const database = getFirestore(firebaseApp);
     const docRef = await getDoc(doc(database, "todo", userid))
     var todoList = docRef.data()
     console.log("old:", todoList)
+    // try {
+    //     // validateTaskInput(assigned,task,completeBy,userid,todoList)
+    // } catch (e) {
+    //     errorMessage = e.message
+    //     console.log("message:", errorMessage)
+    //     res.send({
+    //         error: e.message
+    //     })
+    //     return;
+    // }
+   
+
+ 
     // oldtodoList.push(newToDo)
     if (todoList === undefined) {
         todoList = []
@@ -145,7 +154,7 @@ app.post("/todo/:userid", async function (req, res) {
     var completeBy = req.body.completeBy;
 
     try {
-        
+        validateTaskInput(assigned,task,completeBy,userid,todoList)
     } catch (e) {
         errorMessage = e.message
         console.log("message:", errorMessage)
@@ -154,15 +163,7 @@ app.post("/todo/:userid", async function (req, res) {
         })
         return;
     }
-    if (assigned === "") {
-        assigned = new Date().toLocaleDateString()
-
-    } else {
-
-    }
-    if (completeBy === "") {
-        completeBy = new Date().toLocaleDateString()
-    }
+   
 
     const newToDo: ToDo = {
         userid: Number(userid),
@@ -177,7 +178,7 @@ app.post("/todo/:userid", async function (req, res) {
     const docRef = await getDoc(doc(database, "todo", userid))
     var todoList = docRef.data()
     console.log("old:", todoList)
-   
+
     if (todoList === undefined) {
         todoList = []
     } else {
@@ -210,14 +211,14 @@ app.post("/removetodo/:globalTaskID/:userid", async function (req, res) {
     } else {
         todoList = todoList.todoList
     }
-    console.log("remove:",todoList[globalTaskID])
-    
+    console.log("remove:", todoList[globalTaskID])
+
     todoList.splice(globalTaskID, 1)
     await setDoc(doc(database, "todo", userid), {
 
         todoList
     })
 
-res.send(todoList)
+    res.send(todoList)
 })
 app.listen(3004)
