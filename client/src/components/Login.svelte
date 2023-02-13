@@ -12,7 +12,7 @@
     // if user inputted passwords match, send to server for validation and to be added to global list
     async function submitNewUser() {
         if (newPassword === newPassword2) {
-            const result = await axios.post("http://localhost:3004/user", {
+            const result = await axios.post("https://day26-lmnctbg14-yahoongmi.vercel.app/user", {
                 username: newUsername,
                 password: newPassword,
                 isNewUser: true,
@@ -30,7 +30,7 @@
 
     // send login information to server for validation
     async function loginUser() {
-        const result = await axios.post("http://localhost:3004/user", {
+        const result = await axios.post("https://day26-lmnctbg14-yahoongmi.vercel.app/user", {
             username: username,
             password: password,
             isNewUser: false,
