@@ -22,7 +22,7 @@
             username = result.data.username;
             password = result.data.password;
             activeUser.set(username);
-            activeUserID.set(result.data.id);
+            activeUserID.set(result.data.userid);
         } else {
             errorMessage.set("Passwords do not match");
         }
@@ -36,9 +36,10 @@
             isNewUser: false,
         });
         errorMessage.set(result.data.error);
+        console.log("gay",result)
         username = result.data.username;
         activeUser.set(result.data.username);
-        activeUserID.set(result.data.id);
+        activeUserID.set(result.data.userid);
     }
 </script>
 

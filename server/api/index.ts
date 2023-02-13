@@ -2,11 +2,11 @@ import express from "express";
 import fs from "fs"
 import { initializeApp } from "firebase/app";
 import { collection, getDocs, getFirestore, addDoc, ref, onValue, getDoc, query, where, updateDoc } from "firebase/firestore";
-import ToDo from "./domain/todo";
-import User from "./domain/user";
+import ToDo from "../domain/todo";
+import User from "../domain/user";
 import cors from "cors"
-import validateUserInput from "./validateUserInput";
-import validateTaskInput from "./validateTaskInput";
+import validateUserInput from "../validateUserInput";
+import validateTaskInput from "../validateTaskInput";
 
 // Import the functions you need from the SDKs you need
 

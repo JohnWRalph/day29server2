@@ -7,6 +7,7 @@
   {#if $activeUser}
     <div id="activeUser" class="btn btn-ghost normal-case text-xl">
       {$activeUser}
+    
     </div>
   {:else}{/if}
 </div>

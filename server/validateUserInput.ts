@@ -18,6 +18,7 @@ function validateUserInput(userList: User[], username: string, password: string,
             throw Error(`Password is too short, minimum length is 5, got ${password.length}`)
         }
     } else {
+        console.log(userList)
         const index = userList.findIndex(element => (element as any).user.username === username )
         console.log(index)
         if (index === -1) {

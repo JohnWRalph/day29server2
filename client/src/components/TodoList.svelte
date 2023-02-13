@@ -40,8 +40,6 @@
         );
     
         errorMessage.set(result.data.error);
-        console.log(errorMessage);
-        console.log("result", result.data);
         getTodoList(userid);
     }
 

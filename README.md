@@ -20,3 +20,9 @@ and we decided to go with MongoDb via firebase to start!
 HOMEWORK:
 - Create a Cloud Firestore in Firebase, or Supabase, and change your Todolist to store and get todos from the real database instead!
 - Put the firebase config stuff into environment variables tob e secure!
+
+Day28: Server-side Deployments
+
+HOMEWORK:
+- Deploy your Todo list backedn to Vercel!
+Generate a tsconfig for your express server with npx tsc --init
