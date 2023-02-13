@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { activeUser, activeUserID } from "../store/activeUser";
+  import { activeUser } from "../store/activeUser";
 </script>
 
 <div class="navbar bg-base-100">

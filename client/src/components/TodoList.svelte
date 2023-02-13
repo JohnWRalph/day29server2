@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { activeUser, activeUserID } from "../store/activeUser";
+    import {  activeUserID } from "../store/activeUser";
     import axios from "axios";
     import errorMessage from "../store/errorMessage";
   
