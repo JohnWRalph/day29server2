@@ -5,8 +5,8 @@ import { initializeApp } from "firebase/app";
 import { collection, doc, getDoc, getDocs, getFirestore, setDoc } from "firebase/firestore"
 import { v4 as uuidV4 } from "uuid"
 import validateUserCreate from "../validateUserCreate";
-// import dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
-// dotenv.config()
+import dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
+dotenv.config()
 const app = express()
 app.use(cors())
 
