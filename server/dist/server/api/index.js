@@ -17,7 +17,7 @@ const cors_1 = __importDefault(require("cors"));
 const app_1 = require("firebase/app");
 const firestore_1 = require("firebase/firestore");
 const uuid_1 = require("uuid");
-const validateUserCreate_1 = __importDefault(require("../validateUserCreate"));
+const validateUserCreate_1 = __importDefault(require("../../validateUserCreate"));
 const dotenv_1 = __importDefault(require("dotenv")); // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
 dotenv_1.default.config();
 const app = (0, express_1.default)();
