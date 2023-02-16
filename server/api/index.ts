@@ -1,25 +1,20 @@
-import express from "express";
-import fs from "fs"
-import { initializeApp } from "firebase/app";
-import { collection, getDocs, getFirestore, addDoc, getDoc, query, where, updateDoc } from "firebase/firestore";
-import ToDo from "../domain/todo";
+import express from "express"
+import User from "../domain/user"
 import cors from "cors"
-import validateUserInput from "../validateUserInput";
-import validateTaskInput from "../validateTaskInput";
+import { initializeApp } from "firebase/app";
+import { collection, doc, getDoc, getDocs, getFirestore, setDoc } from "firebase/firestore"
+import { v4 as uuidV4 } from "uuid"
+import validateUserCreate from "../validateUserCreate";
+// import dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
+// dotenv.config()
+const app = express()
+app.use(cors())
 
-// Import the functions you need from the SDKs you need
+app.use(express.json({ limit: '50mb' }))
 
-import { doc, setDoc } from "firebase/firestore";
-// import { collection, addDoc } from "firebase/firestore";
-import dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
-import User from "../domain/user";
-dotenv.config()
-
-const app = express();
-app.use(express.json())
-app.use(cors());
 
 let errorMessage;
+let alertMessage;
 
 const apiKey = process.env.FIREBASECONFIG_APIKEY
 const authDomain = process.env.FIREBASECONFIG_AUTHDOMAIN
@@ -37,176 +32,87 @@ const firebaseConfig = {
     appId,
     measurementId
 }
-
-//   // Initialize Firebase
-const firebaseApp = initializeApp(firebaseConfig as any);
+const firebaseApp = initializeApp(firebaseConfig);
 
 
-// fetch user input from client, validate input, then reject/accept input 
-app.post("/user/", async function (req, res) {
-    // fetch
+app.get('/user', async function (req, res) {
+    console.log("hello")
     const database = getFirestore(firebaseApp);
     const docRef = await getDocs(collection(database, "users"))
     var userList = docRef.docs.map(doc => doc.data())
 
-    const username = req.body.username;
-    const password = req.body.password;
-    const isNewUser = req.body.isNewUser;
+    res.send(userList)
+})
+
+app.post('/user', async function (req, res) {
+    const database = getFirestore(firebaseApp);
+    const docRef = await getDocs(collection(database, "users"))
+    var userList = docRef.docs.map(doc => doc.data())
+
+
+    const username: string = req.body.username;
+    const emailAddress: string = req.body.emailAddress
+    const userid: string = uuidV4()
 
     // validate
     try {
-        validateUserInput(userList as any, username, password, isNewUser)
+        validateUserCreate(username, emailAddress, userList)
     } catch (e) {
+
         errorMessage = e.message
-        // console.log("message:", errorMessage)
+
         res.send({
             error: e.message
         })
         return;
     }
 
-    //push newly created user to existing users and set active user on server side
-    if (isNewUser === true) {
-        //construct user
-
-
-        //To-Do: Use UUID instead of seequential
-        var userid = userList.length;
-        const user: User = {
-            userid: Number(userid),
-            username: username,
-            password: password
-        }
-        // let userList;
-        if (userList === undefined) {
-            userList = []
-        } else {
-            userList = userList
-        }
-
-        // userList.push(user);
-
-        await setDoc(doc(database, "users", userid.toString()), {
-            user
-        });
-        res.send(user)
-
-
-    } else {
-        const index = userList.findIndex(element => element.user.username === username)
-    
-        const user = {
-            userid: index,
-            username: username,
-        }
-        res.send(user)
+    const user: User = {
+        userid: userid,
+        username: username,
+        emailAddress: emailAddress
     }
 
+    await setDoc(doc(database, "users", userid), {
+        user
+    })
+    res.send(user)
 })
 
-// Server-side code
-app.get("/", async function (req, res) {
-
-    // const userid = req.params.userid;
+app.put("/user/:userId", async function (req, res) {
+    const userId = req.params.userId;
+    const newUsername = req.body.newUsername;
+    const newEmailAddress = req.body.newEmailAddress
     const database = getFirestore(firebaseApp);
-    const docRef = await getDocs(collection(database, "users", "9", "task"))
-    const todoList = docRef.docs.map(doc => doc.data())
-
-
-    res.send(docRef.docs.map(doc => doc.data()));
-});
-
-// Recieves userid, returns todos for user
-app.get("/todo/:userid", async function (req, res) {
-    const userid = req.params.userid;
-    var assigned = req.body.assigned;
-    const task = req.body.task;
-    var completeBy = req.body.completeBy;
-    const database = getFirestore(firebaseApp);
-    const docRef = await getDoc(doc(database, "todo", userid))
-    var todoList = docRef.data()
-    console.log("old:", todoList)
-    if (todoList === undefined) {
-        todoList = []
-    } else {
-        todoList = todoList.todoList
-    }
-
-    res.send(todoList)
-})
-// Recieve tasks from client, validates it, then add to global list
-app.post("/todo/:userid", async function (req, res) {
-    const userid = req.params.userid;
-    var assigned = req.body.assigned;
-    const task = req.body.task;
-    var completeBy = req.body.completeBy;
+    const docRef = await getDocs(collection(database, "users"))
+    var userList = docRef.docs.map(doc => doc.data())
+    let successMessage: string;
 
     try {
-        validateTaskInput(assigned,task,completeBy,userid,todoList)
+        validateUserCreate(newUsername, newEmailAddress, userList)
     } catch (e) {
+
         errorMessage = e.message
-      
+
         res.send({
             error: e.message
         })
         return;
     }
-   
-
-    const newToDo: ToDo = {
-        userid: Number(userid),
-        assigned: assigned,
-        task: task,
-        completeBy: completeBy,
-        done: false,
+    const user: User = {
+        userid: userId,
+        username: newUsername,
+        emailAddress: newEmailAddress
     }
 
-    // Initialize Cloud Firestore and get a reference to the service
-    const database = getFirestore(firebaseApp);
-    const docRef = await getDoc(doc(database, "todo", userid))
-    var todoList = docRef.data()
- 
-
-    if (todoList === undefined) {
-        todoList = []
-    } else {
-        todoList = todoList.todoList
-    }
-
-    todoList.push(newToDo)
-
-    await setDoc(doc(database, "todo", userid), {
-
-        todoList
+    await setDoc(doc(database, "users", userId), {
+        user
     })
 
-    res.send(newToDo)
+
+
+
+    res.send(user)
 })
 
-// recieve  task to be removed from client, removes from global todo list, and reorders global index
-app.post("/removetodo/:globalTaskID/:userid", async function (req, res) {
-    const globalTaskID = req.params.globalTaskID;
-    const userid = req.params.userid
-    const database = getFirestore(firebaseApp);
-
-
-    const docRef = await getDoc(doc(database, "todo", userid))
-    var todoList = docRef.data()
-   
-
-    if (todoList === undefined) {
-        todoList = []
-    } else {
-        todoList = todoList.todoList
-    }
-    console.log("remove:", todoList[globalTaskID])
-
-    todoList.splice(globalTaskID, 1)
-    await setDoc(doc(database, "todo", userid), {
-
-        todoList
-    })
-
-    res.send(todoList)
-})
-app.listen(3004)
+app.listen(3000)
