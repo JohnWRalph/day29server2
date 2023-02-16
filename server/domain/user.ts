@@ -1,7 +1,8 @@
 type User = {
-    userid: string
-    username: string
-    emailAddress: string
+    userid: number;
+   username:string;
+   password; string;
+   isNewUser: boolean;
 }
 
 export default User
