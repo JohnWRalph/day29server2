@@ -12,7 +12,7 @@
     async function getTodoList(userid) {
         try {
             const response = await axios.get(
-                ` http://localhost:3004/todo/${userid}`
+                `https://day26-lmnctbg14-yahoongmi.vercel.app/todo/${userid}`
             );
             // console.log(response.data)
             todoList = response.data;
@@ -26,7 +26,7 @@
     // reciever new task input from user, send to server for validation
     async function submitNewTask(userid) {
         const result = await axios.post(
-            ` http://localhost:3004/todo/${userid}`,
+            `https://day26-lmnctbg14-yahoongmi.vercel.app/todo/${userid}`,
             {
                 userid: userid,
                 assigned: assigned,
@@ -44,7 +44,7 @@
         const globalTaskID = event.currentTarget.id;
 
         const result = await axios.post(
-            ` http://localhost:3004/removetodo/${globalTaskID}/${userid}`
+            `https://day26-lmnctbg14-yahoongmi.vercel.app/removetodo/${globalTaskID}/${userid}`
         );
 
         console.log("resultremove", result.data);

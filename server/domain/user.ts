@@ -1,7 +1,7 @@
 type User = {
     userid: number;
    username:string;
-   password; string;
+   password: string;
    isNewUser: boolean;
 }
 
