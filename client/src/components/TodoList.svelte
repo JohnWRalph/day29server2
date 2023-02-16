@@ -1,8 +1,7 @@
 <script lang="ts">
-    import {  activeUserID } from "../store/activeUser";
+    import { activeUserID } from "../store/activeUser";
     import axios from "axios";
     import errorMessage from "../store/errorMessage";
-  
 
     let todoList = [];
     let assigned: Date;
@@ -13,12 +12,10 @@
     async function getTodoList(userid) {
         try {
             const response = await axios.get(
-                `https://day26-lmnctbg14-yahoongmi.vercel.app/todo/${userid}`
+                ` http://localhost:3004/todo/${userid}`
             );
             // console.log(response.data)
             todoList = response.data;
-
-
 
             return response.data;
         } catch (error) {
@@ -28,9 +25,8 @@
 
     // reciever new task input from user, send to server for validation
     async function submitNewTask(userid) {
-       
         const result = await axios.post(
-            `https://day26-lmnctbg14-yahoongmi.vercel.app/todo/${userid}`,
+            ` http://localhost:3004/todo/${userid}`,
             {
                 userid: userid,
                 assigned: assigned,
@@ -38,27 +34,24 @@
                 completeBy: completeBy,
             }
         );
-    
+
         errorMessage.set(result.data.error);
         getTodoList(userid);
     }
 
     // remove task from local and global list
     async function removeTask(event) {
-      
         const globalTaskID = event.currentTarget.id;
-       
-      
+
         const result = await axios.post(
-            `https://day26-lmnctbg14-yahoongmi.vercel.app/removetodo/${globalTaskID}/${userid}`
+            ` http://localhost:3004/removetodo/${globalTaskID}/${userid}`
         );
 
         console.log("resultremove", result.data);
-        getTodoList(userid)
-      
+        getTodoList(userid);
     }
     const userid = $activeUserID;
-    
+
     getTodoList(userid);
 </script>
 

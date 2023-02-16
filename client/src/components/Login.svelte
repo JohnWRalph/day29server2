@@ -8,16 +8,16 @@
     let newPassword: string = "";
     let newPassword2: string = "";
 
-
+// https://day26-lmnctbg14-yahoongmi.vercel.app
     // if user inputted passwords match, send to server for validation and to be added to global list
     async function submitNewUser() {
         if (newPassword === newPassword2) {
-            const result = await axios.post("https://day26-lmnctbg14-yahoongmi.vercel.app/user", {
+            const result = await axios.post(" http://localhost:3004/user", {
                 username: newUsername,
                 password: newPassword,
                 isNewUser: true,
             });
-
+           
             errorMessage.set(result.data.error);
             username = result.data.username;
             password = result.data.password;
@@ -30,7 +30,7 @@
 
     // send login information to server for validation
     async function loginUser() {
-        const result = await axios.post("https://day26-lmnctbg14-yahoongmi.vercel.app/user", {
+        const result = await axios.post(" http://localhost:3004/user", {
             username: username,
             password: password,
             isNewUser: false,
