@@ -18,8 +18,8 @@ const app_1 = require("firebase/app");
 const firestore_1 = require("firebase/firestore");
 const uuid_1 = require("uuid");
 const validateUserCreate_1 = __importDefault(require("../validateUserCreate"));
-import dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
-dotenv.config()
+const dotenv_1 = __importDefault(require("dotenv")); // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
+dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
 app.use(express_1.default.json({ limit: '50mb' }));
